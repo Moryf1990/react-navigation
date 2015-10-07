@@ -3480,9 +3480,7 @@ function drainQueue() {
         currentQueue = queue;
         queue = [];
         while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
+            currentQueue[queueIndex].run();
         }
         queueIndex = -1;
         len = queue.length;
@@ -3534,6 +3532,7 @@ process.binding = function (name) {
     throw new Error('process.binding is not supported');
 };
 
+// TODO(shtylman)
 process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
@@ -32674,6 +32673,31 @@ module.exports = React.createClass({
 });
 
 },{"react":159}],163:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+
+module.exports = React.createClass({
+	displayName: "exports",
+
+	render: function render() {
+		return React.createElement(
+			"div",
+			{ className: "container" },
+			React.createElement(
+				"div",
+				{ className: "row" },
+				React.createElement(
+					"h1",
+					null,
+					"Logout"
+				)
+			)
+		);
+	}
+});
+
+},{"react":159}],164:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -32682,37 +32706,27 @@ var Backbone = require('backbone');
 module.exports = React.createClass({
 	displayName: 'exports',
 
-	componentWillMount: function componentWillMount() {
-		var _this = this;
-
-		this.props.router.on('route', function () {
-			_this.forceUpdate();
-		});
-	},
 	render: function render() {
-		var currentPage = Backbone.history.getFragment();
-
-		var links = [React.createElement(
-			'li',
-			{ key: 'home', className: currentPage === '' ? 'active' : '' },
-			React.createElement(
-				'a',
-				{ href: '#' },
-				'Home'
-			)
-		)];
+		var link = [];
 
 		if (Parse.User.current()) {
-			links.push(React.createElement(
+			link.push(React.createElement(
 				'li',
-				{ key: 'dashboard', className: currentPage === 'dashboard' ? 'active' : '' },
+				{ key: 'home' },
+				React.createElement(
+					'a',
+					{ href: '#' },
+					'Home'
+				)
+			)), link.push(React.createElement(
+				'li',
+				{ key: 'dashboard' },
 				React.createElement(
 					'a',
 					{ href: '#dashboard' },
 					'Dashboard'
 				)
-			));
-			links.push(React.createElement(
+			)), link.push(React.createElement(
 				'li',
 				{ key: 'logout' },
 				React.createElement(
@@ -32722,18 +32736,25 @@ module.exports = React.createClass({
 				)
 			));
 		} else {
-			links.push(React.createElement(
+			link.push(React.createElement(
 				'li',
-				{ key: 'login', className: currentPage === 'login' ? 'active' : '' },
+				{ key: 'home' },
+				React.createElement(
+					'a',
+					{ href: '#' },
+					'Home'
+				)
+			)), link.push(React.createElement(
+				'li',
+				{ key: 'login' },
 				React.createElement(
 					'a',
 					{ href: '#login' },
 					'Login'
 				)
-			));
-			links.push(React.createElement(
+			)), link.push(React.createElement(
 				'li',
-				{ key: 'register', className: currentPage === 'register' ? 'active' : '' },
+				{ key: 'register' },
 				React.createElement(
 					'a',
 					{ href: '#register' },
@@ -32741,7 +32762,6 @@ module.exports = React.createClass({
 				)
 			));
 		}
-
 		return React.createElement(
 			'div',
 			{ className: 'nav-wrapper' },
@@ -32753,13 +32773,13 @@ module.exports = React.createClass({
 			React.createElement(
 				'ul',
 				{ id: 'nav-mobile', className: 'right' },
-				links
+				link
 			)
 		);
 	}
 });
 
-},{"backbone":1,"react":159}],164:[function(require,module,exports){
+},{"backbone":1,"react":159}],165:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32857,20 +32877,22 @@ module.exports = React.createClass({
 	}
 });
 
-},{"react":159}],165:[function(require,module,exports){
+},{"react":159}],166:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var Backbone = require('backbone');
 window.$ = require('jquery');
 window.jQuery = $;
-
-Parse.initialize('bWo3oxF8mUmVjOzLWZaeVYGOYRlJAUJVu9RRVVEB', 'agubNevaI7RuF4hlu4DVHQWlCc4i3EbTBLSftsLp');
+var Backbone = require('backbone');
+var _ = require('backbone/node_modules/underscore');
+Parse.initialize('OAin30pjfN6VbrDGkSeEq7SZ1YCWGj6mlppw8cGS', 'XUehvIhPzP0B5E83CMBuxuYF6b31WyqGxYqA4BSx');
 
 var NavigationComponent = require('./components/NavigationComponent');
 var HomeComponent = require('./components/HomeComponent');
 var DashboardComponent = require('./components/DashboardComponent');
 var LoginComponent = require('./components/LoginComponent');
 var RegisterComponent = require('./components/RegisterComponent');
+var LogoutComponent = require('./components/LogoutComponent');
 
 var app = document.getElementById('app');
 
@@ -32879,7 +32901,8 @@ var Router = Backbone.Router.extend({
 		'': 'home',
 		'dashboard': 'dashboard',
 		'login': 'login',
-		'register': 'register'
+		'register': 'register',
+		'logout': 'logout'
 	},
 	home: function home() {
 		React.render(React.createElement(HomeComponent, null), app);
@@ -32892,6 +32915,9 @@ var Router = Backbone.Router.extend({
 	},
 	register: function register() {
 		React.render(React.createElement(RegisterComponent, { router: r }), app);
+	},
+	logout: function logout() {
+		React.render(React.createElement(LogoutComponent, { router: true }), app);
 	}
 });
 
@@ -32900,7 +32926,7 @@ Backbone.history.start();
 
 React.render(React.createElement(NavigationComponent, { router: r }), document.getElementById('nav'));
 
-},{"./components/DashboardComponent":160,"./components/HomeComponent":161,"./components/LoginComponent":162,"./components/NavigationComponent":163,"./components/RegisterComponent":164,"backbone":1,"jquery":4,"react":159}]},{},[165])
+},{"./components/DashboardComponent":160,"./components/HomeComponent":161,"./components/LoginComponent":162,"./components/LogoutComponent":163,"./components/NavigationComponent":164,"./components/RegisterComponent":165,"backbone":1,"backbone/node_modules/underscore":2,"jquery":4,"react":159}]},{},[166])
 
 
 //# sourceMappingURL=bundle.js.map
